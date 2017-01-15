@@ -373,10 +373,10 @@ class SchemaGenerator(object):
         fields += self.get_pagination_fields(path, method, view)
         fields += self.get_filter_fields(path, method, view)
 
-        if fields and any([field.location in ('form', 'body') for field in fields]):
+        if fields and any([field.location in ('body') for field in fields]):
             encoding = self.get_encoding(path, method, view)
         else:
-            encoding = None
+            encoding = 'multipart/form-data'
 
         description = self.get_description(path, method, view)
 
@@ -491,12 +491,22 @@ class SchemaGenerator(object):
 
             required = field.required and method != 'PATCH'
             description = force_text(field.help_text) if field.help_text else ''
+
+            choices = getattr(field, "choices", None)
+            if choices:
+                enum = []
+                for choice in choices:
+                    enum.append(choice)
+            else:
+                enum = None
+
             field = coreapi.Field(
                 name=field.field_name,
                 location='form',
                 required=required,
                 description=description,
-                type=types_lookup[field]
+                type=types_lookup[field],
+                enum=enum
             )
             fields.append(field)
 
