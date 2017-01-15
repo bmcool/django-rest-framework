@@ -493,7 +493,7 @@ class SchemaGenerator(object):
             description = force_text(field.help_text) if field.help_text else ''
 
             choices = getattr(field, "choices", None)
-            if choices:
+            if choices and isinstance(field, serializers.ChoiceField):
                 enum = []
                 for choice in choices:
                     enum.append(choice)
